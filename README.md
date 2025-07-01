@@ -35,7 +35,7 @@ An AI-based personalized diet recommendation system built using machine learning
 
 
 
-## 📎 Dataset
+## Dataset
 Custom healthcare dataset with health indicators and target diet labels.  
 
 
