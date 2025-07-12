@@ -4,8 +4,8 @@ import streamlit as st
 import pandas as pd
 from src.predict import predict_diet
 
-st.set_page_config(page_title="AI Diet Recommendation", layout="centered")
-st.title("🥗 Smart Diet Recommender")
+st.set_page_config(page_title="AI Smart Diet Recommendation", layout="centered")
+st.title("Smart Diet Recommender")
 st.markdown("Get personalized diet advice powered by machine learning and LLMs.")
 
 with st.form("diet_form"):
@@ -21,14 +21,23 @@ with st.form("diet_form"):
     cholesterol = st.slider("Cholesterol (mg/dL)", 100.0, 300.0, 180.0)
     bp = st.slider("Blood Pressure (mmHg)", 90, 200, 120)
     glucose = st.slider("Glucose (mg/dL)", 70.0, 250.0, 100.0)
-    restriction = st.selectbox("Dietary Restrictions", ["None", "Low_Sugar", "Vegetarian"])
-    allergies = st.selectbox("Allergies", ["None", "Peanuts", "Lactose"])
-    cuisine = st.selectbox("Preferred Cuisine", ["Indian", "Chinese", "Italian", "Mexican"])
+    restriction_options = ["None", "Low_Sugar", "Vegetarian"]
+    allergy_options = ["None", "Peanuts", "Lactose"]
+    cuisine_options = ["Indian", "Chinese", "Italian", "Mexican"]
+
+    restriction = st.selectbox("Dietary Restrictions", restriction_options)
+    allergies = st.selectbox("Allergies", allergy_options)
+    cuisine = st.selectbox("Preferred Cuisine", cuisine_options)
+
+    restriction_idx = restriction_options.index(restriction)
+    allergy_idx = allergy_options.index(allergies)
+    cuisine_idx = cuisine_options.index(cuisine)
+
     exercise = st.slider("Weekly Exercise (hrs)", 0.0, 15.0, 3.0)
     adherence = st.slider("Diet Plan Adherence (%)", 0.0, 100.0, 80.0)
     imbalance = st.slider("Nutrient Imbalance Score", 0.0, 5.0, 2.5)
 
-    submitted = st.form_submit_button("Get Diet Recommendation")
+    submitted = st.form_submit_button("Get Personalized Diet Recommendation")
 
 if submitted:
     input_data = {
@@ -44,18 +53,22 @@ if submitted:
         'Cholesterol_mg/dL': cholesterol,
         'Blood_Pressure_mmHg': bp,
         'Glucose_mg/dL': glucose,
-        'Dietary_Restrictions': ["None", "Low_Sugar", "Vegetarian"].index(restriction),
-        'Allergies': ["None", "Peanuts", "Lactose"].index(allergies),
-        'Preferred_Cuisine': ["Indian", "Chinese", "Italian", "Mexican"].index(cuisine),
+        'Dietary_Restrictions': restriction_idx,
+        'Allergies': allergy_idx,
+        'Preferred_Cuisine': cuisine_idx,
         'Weekly_Exercise_Hours': exercise,
         'Adherence_to_Diet_Plan': adherence,
-        'Dietary_Nutrient_Imbalance_Score': imbalance
+        'Dietary_Nutrient_Imbalance_Score': imbalance,
+        'restriction_label': restriction,  # used for LLM
+        'allergy_label': allergies,
+        'cuisine_label': cuisine
     }
 
-    with st.spinner("Generating personalized diet plan..."):
+    print(input_data)
+    with st.spinner("Generating personalized diet plan for you..."):
         diet_type, meal_plan = predict_diet(input_data)
 
     st.success(f"Predicted Diet Type: {diet_type}")
     st.markdown("---")
-    st.markdown("### 🥘 Personalized Meal Plan")
+    st.markdown("### Personalized Meal Plan")
     st.text(meal_plan)
